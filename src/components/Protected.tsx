@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -5,24 +6,20 @@ import cookies from 'js-cookie';
 
 import { UserState, StoreTypes } from '../store/reducers/types';
 import { handleUser } from '../store/reducers/user.slice';
-import { useCookies } from 'react-cookie';
+import axios from 'axios';
 
 export default function Protected({ path, exact, children }: Props): JSX.Element {
 	const dispatch = useDispatch();
-	const [cook] = useCookies(['jwt']);
 
 	const userStates: UserState = useSelector((state: StoreTypes) => state.user);
 
-	console.log(userStates);
 
 	useEffect(() => {
-		console.log("cook")
-		console.log(cook);
-		const jwt = cookies.get('jwt');
-		cookies.get('');
+		const token: any = cookies.get('jwt');
+
 		console.log('frontend cookie');
-		console.log(jwt);
-		if (!jwt?.length) {
+		console.log(token);
+		if (!token?.length) {
 			console.log('not logged in');
 			dispatch(
 				handleUser({
@@ -33,6 +30,36 @@ export default function Protected({ path, exact, children }: Props): JSX.Element
 			);
 			return;
 		}
+
+		(async () => {
+			console.log('here');
+			try {
+				const response = await axios('/api/verify', {
+					method: 'POST',
+					data: {
+						token: token,
+					},
+				});
+
+				console.log(response);
+
+				if (response?.data?.error) {
+					cookies.remove('jwt');
+
+					return;
+				}
+
+				dispatch(
+					handleUser({
+						authenticated: true,
+						email: response?.data?.user?.email,
+						name: response?.data?.user?.name,
+					})
+				);
+			} catch (err) {
+				// error occured
+			}
+		})();
 	}, []);
 
 	if (userStates?.authenticated === null) {

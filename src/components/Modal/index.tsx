@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { StoreTypes, ModalState } from '../../store/reducers/types';
@@ -11,6 +11,12 @@ function Snackbar(): JSX.Element {
 	const { bouncer } = useBouncer();
 
 	const modalState: ModalState = useSelector((state: StoreTypes) => state.modal);
+
+	const computedBgColor: string = useMemo(() => {
+		if (modalState.type === 'ERROR') return '#f43f5e';
+		if (modalState.type === 'SUCCESS') return '#4ade80';
+		return '';
+	}, [modalState.type]);
 
 	useEffect(() => {
 		bouncer(() => {
@@ -39,6 +45,9 @@ function Snackbar(): JSX.Element {
 					exit={{
 						opacity: 0,
 						bottom: 10,
+					}}
+					style={{
+						backgroundColor: computedBgColor,
 					}}
 					className='p-5 px-10 text-sx font-semibold text-white rounded-lg bg-red-500 flex items-center absolute z-[9999] bottom-10 left-[45%]'>
 					<span>{modalState.message}</span>

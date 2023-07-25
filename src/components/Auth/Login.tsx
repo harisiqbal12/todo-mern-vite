@@ -1,15 +1,18 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import cookie from 'js-cookie';
+import { useHistory } from 'react-router-dom';
 
 import { Input, Button } from '../Utils';
 import { toggleModal } from '../../store/reducers/modal.slice';
 import { ModalState } from '../../store/reducers/types';
-import cookie from 'js-cookie';
 
 import type { LoginValuesProps } from './types';
+import axios from 'axios';
 
 export default function Login(): JSX.Element {
 	const dispatch = useDispatch();
+	const history = useHistory();
 
 	const handleToggleModal = ({ ...props }: ModalState) => {
 		console.log('im here');
@@ -30,10 +33,12 @@ export default function Login(): JSX.Element {
 	};
 
 	useEffect(() => {
-		const c = cookie.get('jwt');
-		console.log(c);
-		console.log('cookie');
-	}, []);
+		const jwt = cookie.get('jwt');
+
+		if (jwt?.length) {
+			history.push('/');
+		}
+	}, [history]);
 
 	async function onSubmit(e: ChangeEvent<HTMLFormElement>) {
 		try {
@@ -99,36 +104,30 @@ export default function Login(): JSX.Element {
 				return;
 			}
 
-			const response = await fetch('/api/login', {
+			const data = await axios('/api/login', {
 				method: 'POST',
-				body: JSON.stringify({
+				data: {
 					email: values?.email,
 					password: values?.password,
-				}),
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
 				},
-				credentials: 'include',
 			});
 
-			const data = await response.json();
+			console.log(data);
 
-			if (data?.error) {
+			if (data?.data?.error) {
 				handleToggleModal({
 					isOpen: true,
-					message: data?.message,
+					message: data?.data?.message,
 					type: 'ERROR',
 				});
 				return;
 			}
 
-			console.log(data);
-			console.log('api response');
 			setValues({
 				email: '',
 				password: '',
 			});
+			history.push('/');
 		} catch (err) {
 			console.log(err);
 		}
