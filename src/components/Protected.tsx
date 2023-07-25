@@ -13,7 +13,6 @@ export default function Protected({ path, exact, children }: Props): JSX.Element
 
 	const userStates: UserState = useSelector((state: StoreTypes) => state.user);
 
-
 	useEffect(() => {
 		const token: any = cookies.get('jwt');
 

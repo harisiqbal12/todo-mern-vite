@@ -1,18 +1,18 @@
-import { ChangeEvent, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import cookie from 'js-cookie';
-import { useHistory } from 'react-router-dom';
+import { ChangeEvent, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 
 import { Input, Button } from '../Utils';
 import { toggleModal } from '../../store/reducers/modal.slice';
-import { ModalState } from '../../store/reducers/types';
+import { handleUser } from '../../store/reducers/user.slice';
+import { ModalState, UserState, StoreTypes } from '../../store/reducers/types';
 
 import type { LoginValuesProps } from './types';
 import axios from 'axios';
+import cookie from 'js-cookie';
 
 export default function Login(): JSX.Element {
 	const dispatch = useDispatch();
-	const history = useHistory();
 
 	const handleToggleModal = ({ ...props }: ModalState) => {
 		console.log('im here');
@@ -23,6 +23,8 @@ export default function Login(): JSX.Element {
 		);
 	};
 
+	const user: UserState = useSelector((state: StoreTypes) => state.user);
+
 	const [values, setValues] = useState<LoginValuesProps>({
 		email: '',
 		password: '',
@@ -31,14 +33,6 @@ export default function Login(): JSX.Element {
 	const handleChange = (type: string) => (e: ChangeEvent<HTMLInputElement>) => {
 		setValues(prev => ({ ...prev, [type]: e.target.value }));
 	};
-
-	useEffect(() => {
-		const jwt = cookie.get('jwt');
-
-		if (jwt?.length) {
-			history.push('/');
-		}
-	}, [history]);
 
 	async function onSubmit(e: ChangeEvent<HTMLFormElement>) {
 		try {
@@ -123,14 +117,27 @@ export default function Login(): JSX.Element {
 				return;
 			}
 
+			dispatch(
+				handleUser({
+					authenticated: true,
+					email: data?.data?.user?.email,
+					name: data?.data?.user?.name,
+				})
+			);
+
 			setValues({
 				email: '',
 				password: '',
 			});
-			history.push('/');
 		} catch (err) {
 			console.log(err);
 		}
+	}
+
+	console.log(user);
+
+	if (user.authenticated === true || cookie.get("jwt")?.length) {
+		return <Redirect to='/' />;
 	}
 
 	return (

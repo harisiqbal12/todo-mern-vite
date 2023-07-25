@@ -84,7 +84,7 @@ export const deleteTodo = createAsyncThunk(
 			console.log(response);
 
 			if (response?.data?.error) {
-				throw new Error(response?.data?.error);
+				throw new Error(response?.data?.message);
 			}
 
 			console.log(response);
@@ -92,6 +92,46 @@ export const deleteTodo = createAsyncThunk(
 			return response?.data?.data;
 		} catch (err) {
 			throw new Error('Failed to delete todo');
+		}
+	}
+);
+
+export const updateTodo = createAsyncThunk(
+	'todos/updateTodo',
+	async ({
+		token,
+		todoId,
+		title,
+		description,
+		status,
+	}: {
+		token: string;
+		todoId: string;
+		title: string;
+		description: string;
+		status: boolean;
+	}) => {
+		try {
+			const response = await axios('http://localhost:4000/api/todo', {
+				method: 'PUT',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				data: {
+					todo_id: todoId,
+					title,
+					description,
+					status,
+				},
+			});
+
+			if (response?.data?.error) {
+				throw new Error(response?.data?.message);
+			}
+
+			return response.data.data;
+		} catch (err) {
+			throw new Error('Failed to update todo');
 		}
 	}
 );
@@ -115,6 +155,7 @@ const todoSlice = createSlice({
 				(state, action: PayloadAction<TodoProps[]>) => {
 					state.loading = false;
 					state.error = null;
+
 					state.todos = action.payload;
 				}
 			)
@@ -132,8 +173,8 @@ const todoSlice = createSlice({
 				state.todos.push(action.payload);
 			})
 			.addCase(addTodo.rejected, (state, action) => {
-				state.loading = false;
-				state.error = action.error;
+				state.creating = false;
+				state.error = action.error.message;
 			})
 			.addCase(deleteTodo.pending, state => {
 				state.creating = true;
@@ -148,6 +189,32 @@ const todoSlice = createSlice({
 				}
 			)
 			.addCase(deleteTodo.rejected, (state, action) => {
+				state.creating = false;
+				state.error = action.error.message;
+			})
+			.addCase(updateTodo.pending, state => {
+				state.creating = true;
+				state.error = null;
+			})
+			.addCase(
+				updateTodo.fulfilled,
+				(state, action: PayloadAction<TodoProps>) => {
+					state.creating = false;
+					state.error = null;
+
+					state.todos = state.todos.map(el => {
+						if (el._id === action.payload._id) {
+							return {
+								...el,
+								...action.payload,
+							};
+						}
+
+						return el;
+					});
+				}
+			)
+			.addCase(updateTodo.rejected, (state, action) => {
 				state.creating = false;
 				state.error = action.error.message;
 			});

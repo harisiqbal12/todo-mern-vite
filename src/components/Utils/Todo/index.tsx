@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import cookie from 'js-cookie';
 
 import { toggleModal } from '../../../store/reducers/modal.slice';
-import { deleteTodo } from '../../../store/reducers/todo.slice';
+import { deleteTodo, updateTodo } from '../../../store/reducers/todo.slice';
 
 import type { TodoProps } from './types';
 import { Button } from '..';
@@ -22,15 +22,61 @@ function Todo({ ...props }: TodoProps): JSX.Element {
 
 	const handleToggleExpand = () => setExpand(prev => !prev);
 
-	const handleDelete = useCallback(() => {
+	const handleUpdateStatus = useCallback(async () => {
 		const token = cookie.get('jwt') || '';
+
+		const response = await dispatch(
+			//@ts-ignore
+			updateTodo({
+				token,
+				status: !props.status,
+				description: props.description,
+				todoId: props._id,
+				title: props.title,
+			})
+		);
+
+		if (response?.error) {
+			dispatch(
+				toggleModal({
+					isOpen: true,
+					message: response?.error?.message,
+					type: 'ERROR',
+				})
+			);
+			return;
+		}
+
 		dispatch(
+			toggleModal({
+				isOpen: true,
+				message: 'UPDATED',
+				type: 'SUCCESS',
+			})
+		);
+	}, [props._id]);
+
+	const handleDelete = useCallback(async () => {
+		const token = cookie.get('jwt') || '';
+		const response = await dispatch(
 			//@ts-ignore
 			deleteTodo({
 				token,
 				todoId: props._id,
 			})
 		);
+
+		if (response?.error) {
+			dispatch(
+				toggleModal({
+					isOpen: true,
+					message: response?.error?.message,
+					type: 'ERROR',
+				})
+			);
+
+			return;
+		}
 
 		dispatch(
 			toggleModal({
@@ -69,7 +115,8 @@ function Todo({ ...props }: TodoProps): JSX.Element {
 					<span className='text-xs'>{props.description}</span>
 					<div className='w-full flex justify-end gap-2'>
 						<Button
-							title='Complete?'
+							title={props.status ? 'Complete' : 'Not Complete'}
+							onClick={handleUpdateStatus}
 							style={{ height: 40, fontSize: 12, width: '15%' }}
 						/>
 						<Button

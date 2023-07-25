@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { useCallback, useEffect, ChangeEvent, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import cookie from 'js-cookie';
+import { CircleSpinner } from 'react-spinners-kit';
 
 import { UserState, StoreTypes, TodoState } from '../../store/reducers/types';
 import { fetchTodos, addTodo } from '../../store/reducers/todo.slice';
 import { toggleModal } from '../../store/reducers/modal.slice';
 import { Input, Todo } from '../Utils';
-import { useCallback, useEffect, ChangeEvent, useState } from 'react';
-import cookie from 'js-cookie';
-import { CircleSpinner } from 'react-spinners-kit';
 
 export default function Home(): JSX.Element {
 	const dispatch = useDispatch();
@@ -58,7 +58,7 @@ export default function Home(): JSX.Element {
 		));
 	}, [todos.todos, todos.loading]);
 
-	const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
+	const onSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
 		try {
 			e.preventDefault();
 
@@ -75,11 +75,24 @@ export default function Home(): JSX.Element {
 
 			const token = cookie.get('jwt');
 			//@ts-ignore
-			dispatch(addTodo({ token, ...values }));
+			const response = await dispatch(addTodo({ token: token, ...values }));
+
+			if (response?.error) {
+				dispatch(
+					toggleModal({
+						isOpen: true,
+						message: response?.error?.message,
+						type: 'ERROR',
+					})
+				);
+
+				return;
+			}
+
 			dispatch(
 				toggleModal({
 					isOpen: true,
-					message: 'Todo Created',
+					message: 'Added',
 					type: 'SUCCESS',
 				})
 			);
@@ -97,6 +110,12 @@ export default function Home(): JSX.Element {
 		}
 	};
 
+	const handleLogout = () => {
+		cookie.remove('jwt');
+
+		window.location.reload();
+	};
+
 	console.log(userStates);
 
 	return (
@@ -104,6 +123,9 @@ export default function Home(): JSX.Element {
 			<div className='w-1/2 h-[90%] flex bg-white rounded-xl p-8 py-4 flex-col'>
 				<div className='flex  h-[10%] shrink-0 items-center justify-between text-base font-semibold text-zinc-700'>
 					<h1>{userStates.name}</h1>
+					<span onClick={handleLogout} className='cursor-pointer'>
+						logout
+					</span>
 				</div>
 
 				<div className='w-full h-[90%] flex flex-col  shrink-0 justify-between'>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ModalState {
 	isOpen: boolean;
 	message: string | null;
@@ -19,7 +20,7 @@ export interface UserState {
 export interface TodoState {
 	todos: Array<TodoProps>;
 	loading: boolean;
-	error: unknown;
+	error: any;
 	creating: boolean;
 }
 
