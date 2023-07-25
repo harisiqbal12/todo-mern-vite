@@ -16,10 +16,7 @@ export default function Protected({ path, exact, children }: Props): JSX.Element
 	useEffect(() => {
 		const token: any = cookies.get('jwt');
 
-		console.log('frontend cookie');
-		console.log(token);
 		if (!token?.length) {
-			console.log('not logged in');
 			dispatch(
 				handleUser({
 					authenticated: false,

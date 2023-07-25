@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { TodoState, TodoProps } from './types';
+import { TodoState, TodoProps, UpdateTodoProps } from './types';
 import axios from 'axios';
 
 const initialState: TodoState = {
@@ -7,6 +7,13 @@ const initialState: TodoState = {
 	loading: false,
 	error: null,
 	creating: false,
+	update: {
+		show: false,
+		_id: null,
+		title: null,
+		description: null,
+		status: false,
+	},
 };
 
 export const fetchTodos = createAsyncThunk(
@@ -143,6 +150,9 @@ const todoSlice = createSlice({
 		getTodos: (state, action: PayloadAction<TodoState>) => {
 			state.todos = action.payload.todos;
 		},
+		setUpdate: (state, action: PayloadAction<UpdateTodoProps>) => {
+			state.update = action.payload;
+		},
 	},
 	extraReducers: builder => {
 		builder
@@ -221,5 +231,5 @@ const todoSlice = createSlice({
 	},
 });
 
-export const { getTodos } = todoSlice.actions;
+export const { getTodos, setUpdate } = todoSlice.actions;
 export default todoSlice.reducer;

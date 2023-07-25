@@ -22,6 +22,15 @@ export interface TodoState {
 	loading: boolean;
 	error: any;
 	creating: boolean;
+	update: UpdateTodoProps;
+}
+
+export interface UpdateTodoProps {
+	_id: string | null;
+	show: boolean;
+	title: string | null;
+	description: string | null;
+	status: boolean;
 }
 
 export interface TodoProps {

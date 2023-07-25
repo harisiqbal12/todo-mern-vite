@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Auth, Protected, Home } from './components';
 
+const SnackBar = lazy(() => import('./components/Snackbar'));
 const Modal = lazy(() => import('./components/Modal'));
 
 const AppRouter = (): JSX.Element => {
@@ -13,6 +14,7 @@ const AppRouter = (): JSX.Element => {
 					<Home />
 				</Protected>
 			</Switch>
+			<SnackBar />
 			<Modal />
 		</Router>
 	);

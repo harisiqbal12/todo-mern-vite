@@ -10,7 +10,11 @@ import { useDispatch } from 'react-redux';
 import cookie from 'js-cookie';
 
 import { toggleModal } from '../../../store/reducers/modal.slice';
-import { deleteTodo, updateTodo } from '../../../store/reducers/todo.slice';
+import {
+	deleteTodo,
+	updateTodo,
+	setUpdate,
+} from '../../../store/reducers/todo.slice';
 
 import type { TodoProps } from './types';
 import { Button } from '..';
@@ -22,7 +26,7 @@ function Todo({ ...props }: TodoProps): JSX.Element {
 
 	const handleToggleExpand = () => setExpand(prev => !prev);
 
-	const handleUpdateStatus = useCallback(async () => {
+	const handleToggleStatus = useCallback(async () => {
 		const token = cookie.get('jwt') || '';
 
 		const response = await dispatch(
@@ -87,6 +91,18 @@ function Todo({ ...props }: TodoProps): JSX.Element {
 		);
 	}, [props._id]);
 
+	const handleUpdate = useCallback(() => {
+		dispatch(
+			setUpdate({
+				_id: props._id,
+				title: props.title,
+				description: props.description,
+				show: true,
+				status: props.status,
+			})
+		);
+	}, [props]);
+
 	return (
 		<motion.div
 			initial={{
@@ -112,23 +128,26 @@ function Todo({ ...props }: TodoProps): JSX.Element {
 			</div>
 			{expand && (
 				<div className='flex flex-col gap-5 w-full'>
-					<span className='text-xs'>{props.description}</span>
-					<div className='w-full flex justify-end gap-2'>
-						<Button
-							title={props.status ? 'Complete' : 'Not Complete'}
-							onClick={handleUpdateStatus}
-							style={{ height: 40, fontSize: 12, width: '15%' }}
-						/>
-						<Button
-							title='Update'
-							style={{ height: 40, fontSize: 12, width: '15%' }}
-						/>
-						<Button
-							title='Delete'
-							style={{ height: 40, fontSize: 12, width: '15%' }}
-							onClick={handleDelete}
-						/>
-					</div>
+					<>
+						<span className='text-xs'>{props.description}</span>
+						<div className='w-full flex justify-end gap-2'>
+							<Button
+								title={props.status ? 'Complete' : 'Not Complete'}
+								onClick={handleToggleStatus}
+								style={{ height: 40, fontSize: 12, width: '15%' }}
+							/>
+							<Button
+								title='Update'
+								style={{ height: 40, fontSize: 12, width: '15%' }}
+								onClick={handleUpdate}
+							/>
+							<Button
+								title='Delete'
+								style={{ height: 40, fontSize: 12, width: '15%' }}
+								onClick={handleDelete}
+							/>
+						</div>
+					</>
 				</div>
 			)}
 		</motion.div>
