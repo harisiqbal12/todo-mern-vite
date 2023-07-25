@@ -29,6 +29,7 @@ export default function Login(): JSX.Element {
 		email: '',
 		password: '',
 	});
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const handleChange = (type: string) => (e: ChangeEvent<HTMLInputElement>) => {
 		setValues(prev => ({ ...prev, [type]: e.target.value }));
@@ -98,6 +99,7 @@ export default function Login(): JSX.Element {
 				return;
 			}
 
+			setLoading(true);
 			const data = await axios('/api/login', {
 				method: 'POST',
 				data: {
@@ -105,6 +107,8 @@ export default function Login(): JSX.Element {
 					password: values?.password,
 				},
 			});
+
+			setLoading(false);
 
 			console.log(data);
 
@@ -131,6 +135,12 @@ export default function Login(): JSX.Element {
 			});
 		} catch (err) {
 			console.log(err);
+			handleToggleModal({
+				isOpen: true,
+				message: 'Something went wrong',
+				type: 'ERROR',
+			});
+			setLoading(false);
 		}
 	}
 
@@ -172,7 +182,7 @@ export default function Login(): JSX.Element {
 						Don't have account?
 					</span>
 				</Link>
-				<Button title='Login' type='submit' />
+				<Button title='Login' type='submit' loading={loading} />
 			</form>
 		</div>
 	);
