@@ -195,7 +195,12 @@ const todoSlice = createSlice({
 				(state, action: PayloadAction<TodoProps>) => {
 					state.creating = false;
 					state.error = null;
-					state.todos = state.todos.filter(el => el._id === action.payload._id);
+					if (state.todos?.length === 1) {
+						state.todos = [];
+						return;
+					}
+
+					state.todos = state.todos.filter(el => el._id !== action.payload._id);
 				}
 			)
 			.addCase(deleteTodo.rejected, (state, action) => {

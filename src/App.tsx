@@ -10,6 +10,7 @@ const AppRouter = (): JSX.Element => {
 		<Router>
 			<Switch>
 				<Route exact path='/login' component={Auth} />
+				<Route exact path='/register' component={Auth} />
 				<Protected exact path='/'>
 					<Home />
 				</Protected>

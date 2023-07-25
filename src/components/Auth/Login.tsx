@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 import { Input, Button } from '../Utils';
 import { toggleModal } from '../../store/reducers/modal.slice';
@@ -120,8 +120,8 @@ export default function Login(): JSX.Element {
 			dispatch(
 				handleUser({
 					authenticated: true,
-					email: data?.data?.user?.email,
-					name: data?.data?.user?.name,
+					email: data?.data?.email,
+					name: data?.data?.name,
 				})
 			);
 
@@ -136,7 +136,7 @@ export default function Login(): JSX.Element {
 
 	console.log(user);
 
-	if (user.authenticated === true || cookie.get("jwt")?.length) {
+	if (user.authenticated === true || cookie.get('jwt')?.length) {
 		return <Redirect to='/' />;
 	}
 
@@ -165,11 +165,13 @@ export default function Login(): JSX.Element {
 					value={values?.password}
 					onChange={handleChange('password')}
 				/>
-				<span
-					className='text-sx text-zinc-600 font-semibold cursor-pointer
-				'>
-					Don't have account?
-				</span>
+				<Link to='/register'>
+					<span
+						className='text-sx text-zinc-600 font-semibold cursor-pointer
+					'>
+						Don't have account?
+					</span>
+				</Link>
 				<Button title='Login' type='submit' />
 			</form>
 		</div>
