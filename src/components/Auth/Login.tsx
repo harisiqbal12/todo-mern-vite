@@ -146,7 +146,7 @@ export default function Login(): JSX.Element {
 
 	console.log(user);
 
-	if (user.authenticated === true || cookie.get('jwt')?.length) {
+	if (user.authenticated === true || cookie?.get('jwt')?.length) {
 		return <Redirect to='/' />;
 	}
 
