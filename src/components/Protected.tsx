@@ -28,7 +28,6 @@ export default function Protected({ path, exact, children }: Props): JSX.Element
 		}
 
 		(async () => {
-			console.log('here');
 			try {
 				const response = await axios('/api/verify', {
 					method: 'POST',
@@ -36,8 +35,6 @@ export default function Protected({ path, exact, children }: Props): JSX.Element
 						token: token,
 					},
 				});
-
-				console.log(response);
 
 				if (response?.data?.error) {
 					cookies.remove('jwt');

@@ -15,7 +15,6 @@ export default function Login(): JSX.Element {
 	const dispatch = useDispatch();
 
 	const handleToggleModal = ({ ...props }: ModalState) => {
-		console.log('im here');
 		dispatch(
 			toggleModal({
 				...props,

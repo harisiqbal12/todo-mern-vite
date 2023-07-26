@@ -5,9 +5,6 @@ import Register from './Register';
 export default function Component(): JSX.Element {
 	const history = useHistory();
 
-	console.log(history);
-	console.log('route history');
-
 	function Render(): JSX.Element {
 		if (history.location.pathname === '/register') {
 			return <Register />;
